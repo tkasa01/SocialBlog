@@ -28,7 +28,7 @@ module.exports.getUserById = function(id, callback){
 };
 module.exports.getUserByUsername = function(username, callback){
     var query = {username: username};
-    User.findOne(query, callback)
+    User.findOne(query, callback).lean();
 };
 module.exports.addUser = function (newUser, callback) {
     bcrypt.genSalt(10, function(err, salt){
@@ -44,4 +44,4 @@ module.exports.comparePasswords = function(candidatePassword, hash, callback){
         if(err) throw err;
         callback(null,isMatch);
     })
-}
+};

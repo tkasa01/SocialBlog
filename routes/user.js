@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-
+const config = require('../config/database');
 const User = require('../models/user');
 
 router.post('/register', function(req, res, next){
@@ -32,12 +32,12 @@ router.post('/authenticate', function(req, res, next){
         if(!user){
             return res.json({success: false, msg: 'User not found'})
         }
-        User.comparePasswords(password, user.password, function(err, isMatch){
+    User.comparePasswords(password, user.password, function(err, isMatch){
             if(err)throw err;
             if(isMatch){
-                const  token = jwt.sign(user, config.secret,{
-                    expiresIn : 604800 //1 week
-                });
+                //was added .toJSON() after user to get plain text or use .lean() in mongo module
+                var  token = jwt.sign(user, config.secret,
+                {expiresIn : 604800 });//1 week
                 res.json({
                     success : true,
                     token: 'JWT'+ token,
@@ -55,8 +55,8 @@ router.post('/authenticate', function(req, res, next){
     })
 });
 
-router.get('/profile', function(req, res, next){
-    res.send('profile');
+router.get('/profile', passport.authenticate('jwt',{session:false}), function(req, res, next){
+    res.json({user:req.user});
 });
 
 
